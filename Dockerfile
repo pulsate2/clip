@@ -6,7 +6,7 @@ RUN apk add --no-cache curl ca-certificates \
        -o /usr/local/bin/cloudflared \
     && chmod +x /usr/local/bin/cloudflared
 
-# 创建启动脚本（同时启动 CLI Proxy API + cloudflared，并强制 HTTP/2）
+# 创建启动脚本（API 必启动，Tunnel 可选且强制 HTTP/2）
 COPY <<EOF /start.sh
 #!/bin/sh
 set -e
@@ -17,13 +17,14 @@ echo "=== 启动 CLI Proxy API ==="
 echo "=== 等待 API 启动（5秒）==="
 sleep 5
 
-echo "=== 启动 Cloudflare Tunnel（强制 HTTP/2 协议）==="
-if [ -z "\${CLOUDFLARED_TOKEN}" ]; then
-  echo "错误：请设置环境变量 CLOUDFLARED_TOKEN"
-  exit 1
+if [ -n "\${CLOUDFLARED_TOKEN}" ]; then
+  echo "=== 启动 Cloudflare Tunnel（强制 HTTP/2 协议）==="
+  exec cloudflared tunnel run --token "\${CLOUDFLARED_TOKEN}" --protocol http2
+else
+  echo "=== 未设置 CLOUDFLARED_TOKEN，跳过 Cloudflare Tunnel，仅运行 API ==="
+  # 保持容器持续运行
+  tail -f /dev/null
 fi
-
-exec cloudflared tunnel run --token "\${CLOUDFLARED_TOKEN}" --protocol http2
 EOF
 
 RUN chmod +x /start.sh
