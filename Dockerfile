@@ -1,10 +1,12 @@
 FROM eceasy/cli-proxy-api:latest
 
-# 安装 cloudflared（alpine 基础镜像）
-RUN apk add --no-cache curl ca-certificates \
+# 安装 cloudflared（Debian 基础镜像）
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
     && curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
        -o /usr/local/bin/cloudflared \
-    && chmod +x /usr/local/bin/cloudflared
+    && chmod +x /usr/local/bin/cloudflared \
+    && rm -rf /var/lib/apt/lists/*
 
 # 创建启动脚本（API 必启动，Tunnel 可选且强制 HTTP/2）
 COPY <<EOF /start.sh
