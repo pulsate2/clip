@@ -30,7 +30,7 @@ set -eu
 
 PLUGIN_DIR="${PLUGIN_DIR:-/CLIProxyAPI/plugins}"
 PLUGIN_ARCH="${PLUGIN_ARCH:-amd64}"
-PLUGIN_REPOS="${PLUGIN_REPOS:-}"
+PLUGIN_REPOS="https://github.com/vrxiaojie/xai-autoban"
 PLUGIN_VERSIONS="${PLUGIN_VERSIONS:-}"
 
 case "$PLUGIN_ARCH" in
